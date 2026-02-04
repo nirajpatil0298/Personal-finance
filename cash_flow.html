@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Flow Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 16px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .balance-card {
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .balance-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+
+        .balance-amount {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .balance-subtext {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .salary-input {
+            background: #f9f9f9;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        .btn-success {
+            background: #4caf50;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .quick-add {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .category-btn {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 16px 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .category-btn:active {
+            transform: scale(0.95);
+            border-color: #667eea;
+            background: #f0f0ff;
+        }
+
+        .category-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .category-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .category-amount {
+            font-size: 12px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .chart-container {
+            background: #f9f9f9;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-align: center;
+            color: #666;
+        }
+
+        .pie-chart {
+            width: 250px;
+            height: 250px;
+            margin: 0 auto 20px;
+        }
+
+        .pie-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .legend-text {
+            flex: 1;
+        }
+
+        .legend-value {
+            font-weight: 600;
+        }
+
+        .bar-chart {
+            height: 180px;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .bar-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bar {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s;
+            min-height: 4px;
+        }
+
+        .bar-label {
+            font-size: 11px;
+            margin-top: 8px;
+            text-align: center;
+            color: #666;
+        }
+
+        .bar-value {
+            font-size: 10px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #667eea;
+        }
+
+        .history-item {
+            background: #f9f9f9;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-details {
+            flex: 1;
+        }
+
+        .history-category {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .history-date {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .history-amount {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .month-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .month-btn {
+            background: #667eea;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px 16px;
+            color: white;
+            border-radius: 8px;
+        }
+
+        .current-month {
+            font-size: 16px;
+            font-weight: 600;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .expense-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: flex-end;
+        }
+
+        .expense-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px 20px 0 0;
+            padding: 24px;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .divider {
+            text-align: center;
+            color: #999;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Money Flow</h1>
+            <div class="balance-card">
+                <div class="balance-label">Current Balance</div>
+                <div class="balance-amount" id="currentBalance">₹0</div>
+                <div class="balance-subtext" id="balanceSubtext">Set your salary to start tracking</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Salary Section -->
+            <div class="section">
+                <div class="section-title">💵 Monthly Salary</div>
+                <div class="salary-input">
+                    <div class="input-group">
+                        <label>Enter Your Salary</label>
+                        <input type="number" id="salaryInput" placeholder="e.g., 50000" inputmode="numeric">
+                    </div>
+                    <button class="btn btn-primary" id="setSalaryBtn">Set Salary</button>
+                </div>
+            </div>
+
+            <!-- Quick Add Expense -->
+            <div class="section">
+                <div class="section-title">➕ Quick Add Expense</div>
+                <div class="quick-add" id="categoriesGrid"></div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="section">
+                <div class="section-title">📊 Statistics</div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">This Month</div>
+                        <div class="stat-value" id="monthTotal">₹0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">This Year</div>
+                        <div class="stat-value" id="yearTotal">₹0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pie Chart -->
+            <div class="section">
+                <div class="chart-container">
+                    <div class="chart-title">Current Month Spending</div>
+                    <canvas id="pieChart" class="pie-chart" width="250" height="250"></canvas>
+                    <div id="pieLegend" class="pie-legend"></div>
+                </div>
+            </div>
+
+            <!-- Bar Chart -->
+            <div class="section">
+                <div class="chart-container">
+                    <div class="chart-title">Last 6 Months Trend</div>
+                    <div class="bar-chart" id="barChart"></div>
+                </div>
+            </div>
+
+            <!-- History -->
+            <div class="section">
+                <div class="section-title">📜 Expense History</div>
+                <div class="month-selector">
+                    <button class="month-btn" id="prevMonth">←</button>
+                    <div class="current-month" id="currentMonthDisplay"></div>
+                    <button class="month-btn" id="nextMonth">→</button>
+                </div>
+                <div id="historyList"></div>
+            </div>
+
+            <!-- Backup Section -->
+            <div class="section">
+                <div class="section-title">💾 Backup & Settings</div>
+                <div class="info-box">
+                    <strong>💡 Backup Info:</strong> Your data is saved automatically. Download backup to keep a copy safe.
+                </div>
+                <button class="btn btn-success" id="exportExcelBtn">📊 Download Excel Backup</button>
+                <button class="btn btn-success" id="exportJSONBtn">📥 Download JSON Backup</button>
+                <div class="divider">───── OR ─────</div>
+                <input type="file" id="fileInput" style="display:none" accept=".json,.xlsx,.xls">
+                <button class="btn btn-secondary" id="importBtn">📤 Import Backup File</button>
+                <button class="btn btn-danger" id="clearDataBtn">🗑️ Clear All Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expense Modal -->
+    <div class="expense-modal" id="expenseModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add Expense</h3>
+                <button class="close-btn" id="closeModalBtn">×</button>
+            </div>
+            <div class="input-group">
+                <label>Amount (₹)</label>
+                <input type="number" id="expenseAmount" placeholder="Enter amount" inputmode="numeric">
+            </div>
+            <div class="input-group">
+                <label>Note (Optional)</label>
+                <input type="text" id="expenseNote" placeholder="Add a note">
+            </div>
+            <button class="btn btn-primary" id="addExpenseBtn">Add Expense</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        const categories = [
+            { id: 'grocery', name: 'Grocery', icon: '🛒', color: '#FF6B6B' },
+            { id: 'fuel', name: 'Fuel', icon: '⛽', color: '#4ECDC4' },
+            { id: 'food', name: 'Food & Dining', icon: '🍽️', color: '#45B7D1' },
+            { id: 'nightout', name: 'Night Out', icon: '🌙', color: '#96CEB4' },
+            { id: 'shopping', name: 'Shopping', icon: '🛍️', color: '#FF8A80' },
+            { id: 'education', name: 'Education', icon: '📚', color: '#82B1FF' },
+            { id: 'entertainment', name: 'Entertainment', icon: '🎬', color: '#EA80FC' },
+            { id: 'vacation', name: 'Vacation', icon: '✈️', color: '#FFD54F' },
+            { id: 'sip', name: 'SIP', icon: '📈', color: '#FFEAA7' },
+            { id: 'stocks', name: 'Stocks', icon: '💹', color: '#DFE6E9' },
+            { id: 'lic', name: 'LIC', icon: '🛡️', color: '#74B9FF' },
+            { id: 'rent', name: 'Home Rent', icon: '🏠', color: '#A29BFE' },
+            { id: 'creditcard', name: 'Credit Card', icon: '💳', color: '#FD79A8' },
+            { id: 'moneysent', name: 'Money Sent', icon: '💸', color: '#FDCB6E' },
+            { id: 'savings', name: 'Savings', icon: '🏦', color: '#6C5CE7' },
+            { id: 'other', name: 'Other', icon: '📦', color: '#B2BEC3' }
+        ];
+
+        let currentCategory = '';
+        let viewingMonth = new Date();
+        let data = { salary: 0, expenses: [], lastBackup: null };
+
+        function loadData() {
+            try {
+                const stored = localStorage.getItem('moneyFlowData');
+                if (stored) data = JSON.parse(stored);
+            } catch (e) {
+                console.error('Error loading data:', e);
+            }
+            updateUI();
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem('moneyFlowData', JSON.stringify(data));
+            } catch (e) {
+                console.error('Error saving data:', e);
+            }
+        }
+
+        function setSalary() {
+            const salary = parseFloat(document.getElementById('salaryInput').value);
+            if (isNaN(salary) || salary <= 0) {
+                alert('Please enter a valid salary amount');
+                return;
+            }
+            data.salary = salary;
+            saveData();
+            updateUI();
+            document.getElementById('salaryInput').value = '';
+            alert('✅ Salary set successfully!');
+        }
+
+        function renderCategories() {
+            const grid = document.getElementById('categoriesGrid');
+            const now = new Date();
+            grid.innerHTML = categories.map(cat => {
+                const spent = getCategoryTotal(cat.id, now.getMonth(), now.getFullYear());
+                return `<div class="category-btn" data-category="${cat.id}"><div class="category-icon">${cat.icon}</div><div class="category-name">${cat.name}</div><div class="category-amount">₹${spent.toLocaleString('en-IN')}</div></div>`;
+            }).join('');
+            
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.addEventListener('click', () => openModal(btn.dataset.category));
+            });
+        }
+
+        function openModal(categoryId) {
+            currentCategory = categoryId;
+            const category = categories.find(c => c.id === categoryId);
+            if (!category) return;
+            document.getElementById('modalTitle').textContent = `Add ${category.name}`;
+            document.getElementById('expenseAmount').value = '';
+            document.getElementById('expenseNote').value = '';
+            document.getElementById('expenseModal').classList.add('active');
+            setTimeout(() => document.getElementById('expenseAmount').focus(), 300);
+        }
+
+        function closeModal() {
+            document.getElementById('expenseModal').classList.remove('active');
+            currentCategory = '';
+        }
+
+        function addExpense() {
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            const note = document.getElementById('expenseNote').value.trim();
+            if (isNaN(amount) || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            data.expenses.push({
+                category: currentCategory,
+                amount: amount,
+                note: note,
+                date: new Date().toISOString()
+            });
+            saveData();
+            updateUI();
+            closeModal();
+        }
+
+        function getCategoryTotal(categoryId, month, year) {
+            return data.expenses.filter(e => {
+                const d = new Date(e.date);
+                return e.category === categoryId && 
+                       (month === null || d.getMonth() === month) &&
+                       (year === null || d.getFullYear() === year);
+            }).reduce((sum, e) => sum + e.amount, 0);
+        }
+
+        function getMonthTotal(month, year) {
+            return data.expenses.filter(e => {
+                const d = new Date(e.date);
+                return d.getMonth() === month && d.getFullYear() === year;
+            }).reduce((sum, e) => sum + e.amount, 0);
+        }
+
+        function getYearTotal(year) {
+            return data.expenses.filter(e => new Date(e.date).getFullYear() === year).reduce((sum, e) => sum + e.amount, 0);
+        }
+
+        function updateBalance() {
+            const now = new Date();
+            const monthTotal = getMonthTotal(now.getMonth(), now.getFullYear());
+            const balance = data.salary - monthTotal;
+            document.getElementById('currentBalance').textContent = `₹${balance.toLocaleString('en-IN')}`;
+            const percentage = data.salary > 0 ? Math.round((monthTotal / data.salary) * 100) : 0;
+            document.getElementById('balanceSubtext').textContent = data.salary > 0 ? `Spent ₹${monthTotal.toLocaleString('en-IN')} (${percentage}%) this month` : 'Set your salary to start tracking';
+        }
+
+        function drawPieChart() {
+            const canvas = document.getElementById('pieChart');
+            const ctx = canvas.getContext('2d');
+            const now = new Date();
+            ctx.clearRect(0, 0, 250, 250);
+            const categoryData = categories.map(cat => ({
+                ...cat,
+                total: getCategoryTotal(cat.id, now.getMonth(), now.getFullYear())
+            })).filter(cat => cat.total > 0);
+            if (categoryData.length === 0) {
+                ctx.fillStyle = '#999';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('No expenses yet', 125, 125);
+                document.getElementById('pieLegend').innerHTML = '';
+                return;
+            }
+            const total = categoryData.reduce((sum, cat) => sum + cat.total, 0);
+            let currentAngle = -Math.PI / 2;
+            categoryData.forEach(cat => {
+                const sliceAngle = (cat.total / total) * 2 * Math.PI;
+                ctx.beginPath();
+                ctx.arc(125, 125, 100, currentAngle, currentAngle + sliceAngle);
+                ctx.lineTo(125, 125);
+                ctx.fillStyle = cat.color;
+                ctx.fill();
+                currentAngle += sliceAngle;
+            });
+            document.getElementById('pieLegend').innerHTML = categoryData.map(cat => {
+                const percentage = Math.round((cat.total / total) * 100);
+                return `<div class="legend-item"><div class="legend-color" style="background:${cat.color}"></div><span class="legend-text">${cat.icon} ${cat.name}</span><span class="legend-value">₹${cat.total.toLocaleString('en-IN')} (${percentage}%)</span></div>`;
+            }).join('');
+        }
+
+        function drawBarChart() {
+            const barChart = document.getElementById('barChart');
+            const now = new Date();
+            const months = [];
+            for (let i = 5; i >= 0; i--) {
+                months.push(new Date(now.getFullYear(), now.getMonth() - i, 1));
+            }
+            const monthTotals = months.map(date => getMonthTotal(date.getMonth(), date.getFullYear()));
+            const maxTotal = Math.max(...monthTotals, 1);
+            barChart.innerHTML = months.map((date, index) => {
+                const total = monthTotals[index];
+                const height = (total / maxTotal) * 140;
+                const monthName = date.toLocaleDateString('en-US', { month: 'short' });
+                return `<div class="bar-item"><div class="bar-value">₹${(total / 1000).toFixed(1)}k</div><div class="bar" style="height:${Math.max(height, 4)}px"></div><div class="bar-label">${monthName}</div></div>`;
+            }).join('');
+        }
+
+        function renderHistory() {
+            const month = viewingMonth.getMonth();
+            const year = viewingMonth.getFullYear();
+            document.getElementById('currentMonthDisplay').textContent = viewingMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            const filtered = data.expenses.filter(e => {
+                const d = new Date(e.date);
+                return d.getMonth() === month && d.getFullYear() === year;
+            }).sort((a, b) => new Date(b.date) - new Date(a.date));
+            const historyList = document.getElementById('historyList');
+            if (filtered.length === 0) {
+                historyList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No expenses this month</p></div>';
+                return;
+            }
+            historyList.innerHTML = filtered.map(expense => {
+                const category = categories.find(c => c.id === expense.category);
+                if (!category) return '';
+                const date = new Date(expense.date).toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                return `<div class="history-item"><div class="history-details"><div class="history-category">${category.icon} ${category.name}</div><div class="history-date">${date}${expense.note ? ' • ' + expense.note : ''}</div></div><div class="history-amount">₹${expense.amount.toLocaleString('en-IN')}</div></div>`;
+            }).join('');
+        }
+
+        function changeMonth(delta) {
+            viewingMonth = new Date(viewingMonth.getFullYear(), viewingMonth.getMonth() + delta, 1);
+            renderHistory();
+        }
+
+        function renderStats() {
+            const now = new Date();
+            document.getElementById('monthTotal').textContent = `₹${getMonthTotal(now.getMonth(), now.getFullYear()).toLocaleString('en-IN')}`;
+            document.getElementById('yearTotal').textContent = `₹${getYearTotal(now.getFullYear()).toLocaleString('en-IN')}`;
+        }
+
+        function exportToJSON() {
+            try {
+                const blob = new Blob([JSON.stringify({ ...data, exportDate: new Date().toISOString(), version: '1.0' }, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `MoneyFlow_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                data.lastBackup = new Date().toISOString();
+                saveData();
+                alert('✅ Backup downloaded!');
+            } catch (e) {
+                alert('❌ Error creating backup');
+            }
+        }
+
+        function exportToExcel() {
+            if (typeof XLSX === 'undefined') {
+                alert('❌ Please use JSON backup');
+                return;
+            }
+            try {
+                const wb = XLSX.utils.book_new();
+                const now = new Date();
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+                    ['Money Flow Tracker'],
+                    ['Export Date:', new Date().toLocaleDateString()],
+                    [''],
+                    ['Monthly Salary:', data.salary],
+                    ['Current Month Total:', getMonthTotal(now.getMonth(), now.getFullYear())],
+                    ['Current Year Total:', getYearTotal(now.getFullYear())]
+                ]), 'Summary');
+                const expensesData = [['Date', 'Category', 'Amount', 'Note']];
+                data.expenses.forEach(expense => {
+                    const category = categories.find(c => c.id === expense.category);
+                    expensesData.push([
+                        new Date(expense.date).toLocaleDateString(),
+                        category ? category.name : 'Unknown',
+                        expense.amount,
+                        expense.note || ''
+                    ]);
+                });
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(expensesData), 'Expenses');
+                XLSX.writeFile(wb, `MoneyFlow_${new Date().toISOString().split('T')[0]}.xlsx`);
+                data.lastBackup = new Date().toISOString();
+                saveData();
+                alert('✅ Excel backup downloaded!');
+            } catch (e) {
+                alert('❌ Error creating Excel file');
+            }
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (confirm('⚠️ This will replace all current data. Continue?')) {
+                        data = {
+                            salary: importedData.salary || 0,
+                            expenses: importedData.expenses || [],
+                            lastBackup: importedData.lastBackup || null
+                        };
+                        saveData();
+                        updateUI();
+                        alert('✅ Data imported successfully!');
+                    }
+                } catch (error) {
+                    alert('❌ Error reading file. Please check the file format.');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function clearAllData() {
+            if (confirm('⚠️ Are you sure? This will delete all data!')) {
+                if (confirm('⚠️ FINAL WARNING: All data will be permanently deleted!')) {
+                    data = { salary: 0, expenses: [], lastBackup: null };
+                    saveData();
+                    updateUI();
+                    alert('✅ All data cleared!');
+                }
+            }
+        }
+
+        function updateUI() {
+            updateBalance();
+            renderCategories();
+            renderHistory();
+            renderStats();
+            drawPieChart();
+            drawBarChart();
+        }
+
+        // Event Listeners
+        document.getElementById('setSalaryBtn').addEventListener('click', setSalary);
+        document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+        document.getElementById('addExpenseBtn').addEventListener('click', addExpense);
+        document.getElementById('prevMonth').addEventListener('click', () => changeMonth(-1));
+        document.getElementById('nextMonth').addEventListener('click', () => changeMonth(1));
+        document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
+        document.getElementById('exportJSONBtn').addEventListener('click', exportToJSON);
+        document.getElementById('importBtn').addEventListener('click', () => document.getElementById('fileInput').click());
+        document.getElementById('fileInput').addEventListener('change', importData);
+        document.getElementById('clearDataBtn').addEventListener('click', clearAllData);
+
+        document.getElementById('expenseModal').addEventListener('click', (e) => {
+            if (e.target.id === 'expenseModal') closeModal();
+        });
+
+        document.getElementById('expenseAmount').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addExpense();
+        });
+
+        document.getElementById('salaryInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') setSalary();
+        });
+
+        // Initialize
+        loadData();
+    </script>
+</body>
+</html>
